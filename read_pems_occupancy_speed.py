@@ -4,7 +4,8 @@ import csv
 # no = [500011092, 500011102, 500011112, 500011113, 500014111, 500014112]
 one_day_occupancy = np.zeros((288, 243))
 one_day_speed = np.zeros((288, 243))
-csv_reader = csv.reader(open('./pems/d05_text_station_5min_2018_01_01.txt'))
+one_day_flow = np.zeros((288, 243))
+csv_reader = csv.reader(open('../pems/d05_text_station_5min_2018_01_01.txt'))
 i = 0  # i是one_year_occupancy的行数
 j = 0  # j是one_year_occupancy的列数
 for row in csv_reader:
@@ -14,16 +15,26 @@ for row in csv_reader:
         one_day_occupancy[i][j] = float(row[10])#avg occupancy across all lanes over the 5min period ex
     except Exception as e:
         one_day_occupancy[i][j] = -1.0
+        # one_day_occupancy[i][j] = one_day_occupancy[i][j-1]
+
     try:
         one_day_speed[i][j] = float(row[11])
     except Exception as e:
-        one_day_speed[i][j] = -1.0
+        # one_day_speed[i][j] = -1.0
+        one_day_speed[i][j] = one_day_speed[i][j-1]
+    try:
+        one_day_flow[i][j] = float(row[9])
+    except Exception as e:
+        # one_day_speed[i][j] = -1.0
+        one_day_flow[i][j] = one_day_flow[i][j-1]
+
     j += 1
     if j == 243:
         i += 1
         j = 0
 occupancy = np.array(one_day_occupancy)
 speed = np.array(one_day_speed)
+flow = np.array(one_day_flow)
 
 for m in range(1, 3):
     for d in range(1, 32):
@@ -40,7 +51,7 @@ for m in range(1, 3):
             d_str = str(d)
         try:  # 为了避免程序读到像2月30日这样的月份而停止
             csv_reader = csv.reader(
-                open('./pems/d05_text_station_5min_2018_%s_%s.txt' % (m_str, d_str)))
+                open('../pems/d05_text_station_5min_2018_%s_%s.txt' % (m_str, d_str)))
         except Exception as e:
             print('month ' + m_str + ' day ' + d_str + ' does not exist!')
             continue
@@ -56,13 +67,20 @@ for m in range(1, 3):
             try:
                 one_day_speed[i][j] = float(row[11])
             except Exception as e:
-                one_day_speed[i][j] = -1.0
+                one_day_speed[i][j] = one_day_speed[i][j-1]
+            try:
+                one_day_flow[i][j] = float(row[9])
+            except Exception as e:
+                # one_day_speed[i][j] = -1.0
+                one_day_flow[i][j] = one_day_flow[i][j-1]
             j += 1
             if j == 243:
                 i += 1
                 j = 0
         occupancy = np.vstack((occupancy, one_day_occupancy))
         speed = np.vstack((speed, one_day_speed))
+        flow = np.vstack((flow, one_day_flow))
+
         print('month' + m_str + ' day ' + d_str + ' is finished!')
 
-np.savez('data/pems_speed_occupancy_5min.npz', speed=speed, occupancy=occupancy)
+np.savez('../data/pems_speed_occupancy_5min.npz', speed=speed, occupancy=occupancy,flow = flow)
