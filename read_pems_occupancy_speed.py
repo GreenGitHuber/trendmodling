@@ -36,7 +36,7 @@ occupancy = np.array(one_day_occupancy)
 speed = np.array(one_day_speed)
 flow = np.array(one_day_flow)
 
-for m in range(1, 3):
+for m in range(1, 13):
     for d in range(1, 32):
         # 3月10日和9月17日数据不完整，这两天的数据被删除
         if m == 1 and d == 1 or m == 3 and d == 10 or m == 9 and d == 17:
