@@ -144,6 +144,6 @@ for i in range(1, max_epoch + 1):
         # plt.plot()
         plt.plot(realpredict_y[0],label='Predicted line')
         plt.plot(real_y[0],label='Excepted line')
-        plt.legend(loc='upper right')
+        plt.legend(loc='best')
         plt.show()
         plt.close()

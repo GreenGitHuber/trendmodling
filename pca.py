@@ -29,5 +29,5 @@ class PCA:
         data_rest = np.matmul(rest_data_rot, self.rest_vector.T)
         return data_main, data_rest
     """
-    def reconstruct(self, rest_x):
-        return self.main_x + rest_x
+    def reconstruct(self, main_x,rest_x):
+        return main_x + rest_x
