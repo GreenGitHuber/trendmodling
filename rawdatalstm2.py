@@ -135,7 +135,7 @@ y_pred = lstm(layer_num, n_inputs, batch_size, n_output, hide_output, keep_prob)
 # mse = tf.losses.mean_squared_error(y_real, y_pred)
 loss=tf.reduce_mean(tf.square(tf.reshape(y_pred,[-1])-tf.reshape(y_real, [-1])))
 # train_op = tf.train.AdamOptimizer(1e-3).minimize(mse)
-train_op = tf.train.AdamOptimizer(1e-3).minimize(loss)
+train_op = tf.train.AdamOptimizer(0.01).minimize(loss)
 
 
 sess = tf.Session()
@@ -185,3 +185,7 @@ plt.close()
 # mre: 0.00611644853384
 # mae: 0.206409956349
 # rmse: 0.322392351512
+# di
+# mre: 0.0078841134153
+# mae: 0.276830838565
+# rmse: 0.425419768114
