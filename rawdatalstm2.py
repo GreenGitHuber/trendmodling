@@ -7,7 +7,7 @@ import tensorflow as tf
 import matplotlib.pylab as plt
 from tensorflow.contrib import rnn
 from sklearn.model_selection import train_test_split 
-from pca import PCA 
+from pca import PCA
 def split_dataset(dataset,time_step):
     days,ndim = dataset.shape
     dataX=[]
@@ -185,7 +185,8 @@ plt.close()
 # mre: 0.00611644853384
 # mae: 0.206409956349
 # rmse: 0.322392351512
-# di
+
+# change learn rate
 # mre: 0.0078841134153
 # mae: 0.276830838565
 # rmse: 0.425419768114
