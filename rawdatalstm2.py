@@ -24,13 +24,12 @@ def use_pca(data):
 def get_metrics(y,pred_y):
     y_mean=np.mean(y)
     y[y==0.00]=y_mean
-
-    mre = np.mean(np.abs(y - pred_y) /y)
+    mre = np.mean(np.abs(y - pred_y) /np.abs(y))
     mae = np.mean(np.abs(y - pred_y))
     rmse = np.sqrt(np.mean(np.square(y-pred_y)))
     return mre,mae,rmse
 def print_res_index(realY,predY,func):
-    mre,mae,rmse = func(np.array(real_y),np.array(realpredict_y))
+    mre,mae,rmse = func(np.array(realY),np.array(predY))
     print('mre:',mre)
     print('mae:',mae)
     print('rmse:',rmse)
@@ -182,11 +181,6 @@ plt.close()
 # plt.close()
 
 
-# mre: 0.00611644853384
-# mae: 0.206409956349
-# rmse: 0.322392351512
-
-# change learn rate
-# mre: 0.0078841134153
-# mae: 0.276830838565
-# rmse: 0.425419768114
+# mre: 0.0140409379527
+# mae: 0.486761537746
+# rmse: 0.683595713895

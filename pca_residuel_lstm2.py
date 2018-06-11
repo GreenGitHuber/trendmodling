@@ -6,7 +6,11 @@ import tensorflow as tf
 import matplotlib.pylab as plt
 from tensorflow.contrib import rnn
 from sklearn.model_selection import train_test_split 
-from pca import PCA 
+from pca import PCA
+
+#预测两部分的数据
+#主成分也进行预测，偏差数据也进行预测
+
 def split_dataset(dataset,time_step):
     days,ndim = dataset.shape
     dataX=[]
@@ -20,7 +24,7 @@ def split_dataset(dataset,time_step):
 def get_metrics(y,pred_y):
     y_mean=np.mean(y)
     y[y==0.00]=y_mean
-    mre = np.mean(np.abs(y - pred_y) /y)
+    mre = np.mean(np.abs(y - pred_y) /np.abs(y))
     mae = np.mean(np.abs(y - pred_y))
     rmse = np.sqrt(np.mean(np.square(y-pred_y)))
     return mre,mae,rmse
@@ -219,8 +223,8 @@ plt.close()
 sess1.close()
 sess2.close()
 
-#
-# mre: 0.00304992539894
-# mae: 0.0962745383934
-# rmse: 0.145124268709
 
+#
+# mre: 0.00337021775097
+# mae: 0.106004248284
+# rmse: 0.157376649752

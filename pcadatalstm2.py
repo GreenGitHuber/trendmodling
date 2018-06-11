@@ -1,4 +1,3 @@
-import tensorflow as tf
 from tensorflow.examples.tutorials.mnist import input_data
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
@@ -6,7 +5,11 @@ import tensorflow as tf
 import matplotlib.pylab as plt
 from tensorflow.contrib import rnn
 from sklearn.model_selection import train_test_split 
-from pca import PCA 
+from pca import PCA
+
+#偏差数据进行预测。
+#加上实际的主成分。
+
 def split_dataset(dataset,time_step):
     days,ndim = dataset.shape
     dataX=[]
@@ -25,13 +28,14 @@ def use_pca(data):
 def get_metrics(y,pred_y):
     y_mean=np.mean(y)
     y[y==0.00]=y_mean
-    mre = np.mean(np.abs(y - pred_y) /y)
+    mre = np.mean(np.abs(y - pred_y) / np.abs(y))
+    # mre = np.mean(np.abs(y - pred_y) / y)
     mae = np.mean(np.abs(y - pred_y))
     rmse = np.sqrt(np.mean(np.square(y-pred_y)))
     return mre,mae,rmse
 
 def print_res_index(realY,predY,func):
-    mre,mae,rmse = func(np.array(real_y),np.array(realpredict_y))
+    mre,mae,rmse = func(np.array(realY),np.array(predY))
     print('mre:',mre)
     print('mae:',mae)
     print('rmse:',rmse)
@@ -165,8 +169,8 @@ print_res_index(pre_reconstruct, real_reconstruct,get_metrics)
         
         
         
-plt.plot(pre_reconstruct[0],label='Predicted reconstruct line')
-plt.plot(real_reconstruct[0],label='Real_flow line')
+plt.plot(pre_reconstruct[6],label='Predicted reconstruct line')
+plt.plot(real_reconstruct[6],label='Real_flow line')
 plt.plot(realpredict_y[0],label='Predicted line')
 plt.plot(real_y[0],label='Excepted line')
 plt.legend(loc='best')
@@ -179,7 +183,7 @@ plt.ylabel('Cost')
 plt.show()
 plt.close()
 
-# mre: -0.0531957496369
-# mae: 0.0782579351155
-# rmse: 0.118896266375
 
+# mre: 0.00264886015142
+# mae: 0.0793499012835
+# rmse: 0.12005226103
