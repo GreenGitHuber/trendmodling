@@ -7,7 +7,7 @@ import matplotlib.pylab as plt
 from tensorflow.contrib import rnn
 from sklearn.model_selection import train_test_split 
 from pca import PCA
-
+import json
 #预测两部分的数据
 #主成分也进行预测，偏差数据也进行预测
 
@@ -35,10 +35,14 @@ def print_res_index(realY,predY,func):
     print('mae:',mae)
     print('rmse:',rmse)
 
-r=np.load("../data/pems_speed_occupancy_5min.npz")
-speed_data=r["flow"]
-singel_sensor = speed_data[:,2]
-m = singel_sensor.reshape(53,-1)  # 53*288
+with open(r"../data/imputationdata/ppca_my_imputation005.txt", encoding="utf-8") as f:
+    d=json.load(f)
+speed_data=np.array(d)
+m = speed_data.reshape(53,-1)
+# r=np.load("../data/pems_speed_occupancy_5min.npz")
+# speed_data=r["flow"]
+# singel_sensor = speed_data[:,2]
+# m = singel_sensor.reshape(53,-1)  # 53*288
 data = m
 
 pca_obj = PCA(data,3)
@@ -167,7 +171,7 @@ rest_loss=tf.reduce_mean(tf.square(tf.reshape(y_rest_pred,[-1])-tf.reshape(rest_
 rest_train_op = tf.train.AdamOptimizer(1e-3).minimize(rest_loss)
 
 main_loss=tf.reduce_mean(tf.square(tf.reshape(y_main_pred,[-1])-tf.reshape(main_y_real, [-1])))
-main_train_op = tf.train.AdamOptimizer(1e-3).minimize(main_loss)
+main_train_op = tf.train.AdamOptimizer(1e-2).minimize(main_loss)
 
 
 
@@ -228,3 +232,13 @@ sess2.close()
 # mre: 0.00337021775097
 # mae: 0.106004248284
 # rmse: 0.157376649752
+
+#upflow
+# mre: 0.015920314872811554
+# mae: 0.5274820020905233
+# rmse: 1.968878524920285
+
+#imputation data
+# mre: 0.015625645403735556
+# mae: 0.4907245366661633
+# rmse: 0.8275556004631847

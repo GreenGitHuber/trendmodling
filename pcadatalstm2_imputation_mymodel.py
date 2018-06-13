@@ -1,14 +1,17 @@
-import tensorflow as tf
 from tensorflow.examples.tutorials.mnist import input_data
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
-from sklearn.metrics import mean_absolute_error,mean_squared_error
 import tensorflow as tf
 import matplotlib.pylab as plt
 from tensorflow.contrib import rnn
 from sklearn.model_selection import train_test_split 
 from pca import PCA
 import json
+
+#将用ppca补全的数据进行预测。
+#偏差数据进行预测。
+#加上实际的主成分。
+
 def split_dataset(dataset,time_step):
     days,ndim = dataset.shape
     dataX=[]
@@ -18,6 +21,7 @@ def split_dataset(dataset,time_step):
         dataY.append(dataset[i+time_step:i+time_step+1])
     return np.array(dataX),np.array(dataY)
 
+
 def use_pca(data):
     pca_obj = PCA(data,3)
     return pca_obj.main_x,pca_obj.rest_x
@@ -25,35 +29,28 @@ def use_pca(data):
 def get_metrics(y,pred_y):
     y_mean=np.mean(y)
     y[y==0.00]=y_mean
-    mre = np.mean(np.abs(y - pred_y) /np.abs(y))
+    mre = np.mean(np.abs(y - pred_y) / np.abs(y))
     mae = np.mean(np.abs(y - pred_y))
     rmse = np.sqrt(np.mean(np.square(y-pred_y)))
     return mre,mae,rmse
+
 def print_res_index(realY,predY,func):
     mre,mae,rmse = func(np.array(realY),np.array(predY))
     print('mre:',mre)
     print('mae:',mae)
     print('rmse:',rmse)
-
+# f= open("../data/inputationdata/ppca_imputation0050000.txt",'rb')
 with open(r"../data/imputationdata/ppca_my_imputation005.txt", encoding="utf-8") as f:
     d=json.load(f)
 speed_data=np.array(d)
-m = speed_data.reshape(53,-1)
-# r=np.load("../data/pems_speed_occupancy_5min.npz")
-# speed_data=r["flow"]
-# singel_sensor = speed_data[:,2]
-# m = singel_sensor.reshape(53,-1)  # 53*288
+m = speed_data.reshape(53,-1)  # 53*288
 data = m
 
-pca_obj = PCA(data,3)
+pca_obj = PCA(data,4)
 # data_main,data_rest=use_pca(data)
 data_main,data_rest=pca_obj.main_x,pca_obj.rest_x
 
-# dataset = data_rest
-dataset = data#不做pca预处理
-
-# dataset = np.random.rand(53,288)  # shape 53 * 288
-
+dataset = data_rest
 
 # hyperparameters
 batch = 50
@@ -70,14 +67,19 @@ max_epoch = int(2000 * 6)  # 6
 
 # 归一化
 scaler = MinMaxScaler(feature_range=(0,1))
-dataset_scaler = scaler.fit_transform(dataset)
+dataset_scaler = scaler.fit_transform(dataset)  # 53 288
 
-#把数据划分为输入数据和输出数据
+#
 dataX,dataY = split_dataset(dataset_scaler,time_step=n_steps)  #dataX shape (50,3,288) ,dataY shape (50,1,288)
+mian_dataX,main_dataY = split_dataset(data_main,time_step=n_steps)
 dataY=np.reshape(dataY,(batch,n_output))                       #dataY shape (50,1,288)
+main_dataY=np.reshape(main_dataY,(batch,n_output))                       #dataY shape (50,1,288)
 
 #划分训练集和测试集
-train_X,test_X,train_y,test_y =train_test_split(dataX, dataY, test_size=test_size, random_state=17)
+train_X,test_X,train_y,test_y =train_test_split(dataX, dataY, test_size=test_size, random_state=42)
+train_main,test_main=train_test_split(main_dataY,test_size=test_size, random_state=42)
+
+
 
 def lstm(layer_num, hidden_size, batch_size, output_size, lstm_x, keep_prob):
     def multi_cells(cell_num):
@@ -116,6 +118,8 @@ def lstm(layer_num, hidden_size, batch_size, output_size, lstm_x, keep_prob):
     return lstm_y_pres
 
 
+
+
 # 根据输入数据来决定，train_num训练集大小,input_size输入维度
 #train_num, time_step_size, input_size = dataX.shape  # sahpe ：12 * 2 *480
 #_, output_size = dataY.shape
@@ -135,9 +139,8 @@ pre_layer_hidden_size = 0
 hide_output = x_input
 
 y_pred = lstm(layer_num, n_inputs, batch_size, n_output, hide_output, keep_prob)
-# mse = tf.losses.mean_squared_error(y_real, y_pred)
+
 loss=tf.reduce_mean(tf.square(tf.reshape(y_pred,[-1])-tf.reshape(y_real, [-1])))
-# train_op = tf.train.AdamOptimizer(1e-3).minimize(mse)
 train_op = tf.train.AdamOptimizer(1e-3).minimize(loss)
 
 
@@ -151,46 +154,42 @@ cost_list=[]
 iter_time = 100
 for i in range(iter_time):
     feed_dict = {x_input: np.array(train_X), y_real: np.array(train_y), keep_prob: dropout_keep_rate, batch_size: train_batch}
-    # sess.run(train_op, feed_dict=feed_dict)
     _,loss_=sess.run([train_op,loss], feed_dict=feed_dict)
-    # cost_=sess.run(mse, feed_dict=feed_dict)
-    # print('iter:',i,'cost:',sess.run(mse, feed_dict=feed_dict))
     print('iter:',i,'loss:',loss_)
     cost_list.append(loss_)
+
 
 
 prob=sess.run(y_pred,feed_dict={x_input:np.array(test_X),y_real: np.array(test_y), keep_prob:1,batch_size:test_batch})
 #反归一化
 realpredict_y, real_y= scaler.inverse_transform(prob), scaler.inverse_transform(test_y)
-print_res_index(realpredict_y, real_y,get_metrics)
+pre_reconstruct=pca_obj.reconstruct(test_main,realpredict_y)
+real_reconstruct=pca_obj.reconstruct(test_main,real_y)
+print_res_index(pre_reconstruct, real_reconstruct,get_metrics)
 
 
-# rmse_=np.sqrt(mean_squared_error(realpredict_y,real_y))
-# print ('rmse:',rmse_)
-# mae = mean_absolute_error(y_pred=realpredict_y,y_true=real_y)
-# print ('mae:',mae )
-      
         
+        
+        
+plt.plot(pre_reconstruct[6],label='Predicted reconstruct line')
+plt.plot(real_reconstruct[6],label='Real_flow line')
 plt.plot(realpredict_y[0],label='Predicted line')
 plt.plot(real_y[0],label='Excepted line')
-plt.title('RawData lstm predict')
 plt.legend(loc='best')
 plt.show()
 plt.close()
-# plt.plot(cost_list)
-# plt.title('Train Cost Curse')
-# plt.xlabel('Iters')
-# plt.ylabel('Cost')
-# plt.show()
-# plt.close()
+plt.plot(cost_list)
+plt.title('Cost Curse')
+plt.xlabel('Iters') 
+plt.ylabel('Cost')
+plt.show()
+plt.close()
 
 
 
 
+#myppca
 
-#my imputation data
-
-#
-# mre: 0.011250661915757099
-# mae: 0.35566576145313405
-# rmse: 0.6584349934342293
+# mre: 0.010374299846012994
+# mae: 0.3074683145082267
+# rmse: 0.5806448687324548

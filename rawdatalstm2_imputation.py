@@ -35,15 +35,12 @@ def print_res_index(realY,predY,func):
     print('mae:',mae)
     print('rmse:',rmse)
 
-with open(r"../data/imputationdata/ppca_my_imputation005.txt", encoding="utf-8") as f:
+with open(r"../data/imputationdata/ppca_imputation005.txt", encoding="utf-8") as f:
     d=json.load(f)
 speed_data=np.array(d)
-m = speed_data.reshape(53,-1)
-# r=np.load("../data/pems_speed_occupancy_5min.npz")
-# speed_data=r["flow"]
-# singel_sensor = speed_data[:,2]
-# m = singel_sensor.reshape(53,-1)  # 53*288
+m = speed_data.reshape(53,-1)  # 53*288
 data = m
+
 
 pca_obj = PCA(data,3)
 # data_main,data_rest=use_pca(data)
@@ -191,6 +188,6 @@ plt.close()
 #my imputation data
 
 #
-# mre: 0.011250661915757099
-# mae: 0.35566576145313405
-# rmse: 0.6584349934342293
+# mre: 0.013345796195057135
+# mae: 0.4135692333733594
+# rmse: 0.820867944509303
