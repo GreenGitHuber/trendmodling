@@ -8,6 +8,7 @@ from sklearn.model_selection import train_test_split
 from pca import PCA
 import json
 import matplotlib.mlab as mlab
+import collections
 
 #将用ppca补全的数据进行预测。
 #偏差数据进行预测。
@@ -35,13 +36,22 @@ def get_metrics(y,pred_y):
     rmse = np.sqrt(np.mean(np.square(y-pred_y)))
     return mre,mae,rmse
 
+
+def flatten(x):
+    result = []
+    for el in x:
+        result.extend(el)
+    return result
+
+
+
 def print_res_index(realY,predY,func):
     mre,mae,rmse = func(np.array(realY),np.array(predY))
     print('mre:',mre)
     print('mae:',mae)
     print('rmse:',rmse)
 # f= open("../data/inputationdata/ppca_imputation0050000.txt",'rb')
-with open(r"../data/imputationdata/ppca_my_imputation005.txt", encoding="utf-8") as f:
+with open(r"../data/imputationdata/ppca_imputation005.txt", encoding="utf-8") as f:
     d=json.load(f)
 speed_data=np.array(d)
 m = speed_data.reshape(53,-1)  # 53*288
@@ -60,17 +70,15 @@ def drew_hist(lengths):
     y = mlab.normpdf(bins,mu,sigma)
     plt.plot(bins,y,'r')
     plt.show()
-drew_hist(data_rest[8])
+
+one_dim_data = flatten(m)
+print(one_dim_data)
+plt.plot(one_dim_data[:2000])
+plt.ylim((-10,100))
+plt.show()
+plt.close()
+# for i in range(31):
+#     drew_hist(data_rest[i])
 
 
 
-
-#imputation
-# mre: 0.016490104409841277
-# mae: 0.4975384880057572
-# rmse: 1.1250220556432569
-
-#
-# mre: 0.010025252878355624
-# mae: 0.30091390294632925
-# rmse: 0.5876020455325003
