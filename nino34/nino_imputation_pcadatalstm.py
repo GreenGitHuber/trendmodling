@@ -48,12 +48,12 @@ def create_dataset(dataset,look_back=1):
     return np.array(dataX), np.array(dataY).reshape(-1, 1)
 
 np.random.seed(7)
-# a = np.loadtxt('../nino34/nino34.long.anom.data.txt')
-a = np.loadtxt('../../nino34/nino34.long.data.txt')
-a = a[:-1,1:]
-m = flatten(a)
-m= np.array(m)
-data = np.array(a)
+
+with open(r"../../data/nino34imputation/ppca_imputation005.txt", encoding="utf-8") as f:
+    d=json.load(f)
+
+m = flatten(d)
+data= np.array(d)
 pca_obj = PCA(data,3)
 data_main,data_rest=pca_obj.main_x,pca_obj.rest_x
 data_rest = flatten(data_rest)
@@ -202,6 +202,6 @@ plt.ylabel('Cost')
 plt.show()
 plt.close()
 
-# mre: 0.6347841287484998
-# mae: 0.09690802765652728
-# rmse: 0.12167344794790781
+# mre: 0.0038142272623891906
+# mae: 0.1027804208909599
+# rmse: 0.1304799575278725

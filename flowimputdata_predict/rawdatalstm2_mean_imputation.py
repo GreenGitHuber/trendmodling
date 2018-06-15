@@ -9,6 +9,9 @@ from tensorflow.contrib import rnn
 from sklearn.model_selection import train_test_split 
 from pca import PCA
 import json
+
+#将用均值补全的数据进行预测。
+
 def split_dataset(dataset,time_step):
     days,ndim = dataset.shape
     dataX=[]

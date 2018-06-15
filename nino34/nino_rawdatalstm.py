@@ -48,7 +48,7 @@ def create_dataset(dataset,look_back=1):
     return np.array(dataX), np.array(dataY).reshape(-1, 1)
 
 np.random.seed(7)
-a = np.loadtxt('../nino34/nino34.long.anom.data.txt')
+a = np.loadtxt('../../nino34/nino34.long.data.txt')
 a = a[:-1,1:]
 m = flatten(a)
 # r=np.load("../data/pems_speed_occupancy_5min.npz")
@@ -189,3 +189,7 @@ plt.close()
 # mre: 2.7310218888356146
 # mae: 0.27487229669006524
 # rmse: 0.34528279269185447
+
+# mre: 0.012563246412071346
+# mae: 0.33834960011539317
+# rmse: 0.41354992068957125

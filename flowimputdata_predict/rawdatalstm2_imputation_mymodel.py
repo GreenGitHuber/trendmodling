@@ -9,6 +9,9 @@ from tensorflow.contrib import rnn
 from sklearn.model_selection import train_test_split 
 from pca import PCA
 import json
+
+#将用我们自己的ppc模型a补全的数据进行预测。
+
 def split_dataset(dataset,time_step):
     days,ndim = dataset.shape
     dataX=[]
@@ -35,7 +38,7 @@ def print_res_index(realY,predY,func):
     print('mae:',mae)
     print('rmse:',rmse)
 
-with open(r"../data/imputationdata/ppca_imputation005.txt", encoding="utf-8") as f:
+with open(r"../data/imputationdata/ppca_my_imputation005.txt", encoding="utf-8") as f:
     d=json.load(f)
 speed_data=np.array(d)
 m = speed_data.reshape(53,-1)  # 53*288
@@ -187,7 +190,7 @@ plt.close()
 
 #my imputation data
 
-#
-# mre: 0.013345796195057135
-# mae: 0.4135692333733594
-# rmse: 0.820867944509303
+# #
+# mre: 0.010340099806148894
+# mae: 0.3253007328068769
+# rmse: 0.6315618436095559
